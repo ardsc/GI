@@ -12,6 +12,7 @@ class View extends Facade
 
     private
         $name = null,
+        $path = null,
         $data = [];
 
     public function path($path)
@@ -19,7 +20,7 @@ class View extends Facade
 
         if (!is_null($path)) {
 
-            $path1 = $path;
+            $this->path = $path;
         }
 
         return $this;
