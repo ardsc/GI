@@ -1,76 +1,84 @@
 <?php
 
+use Gi\Config;
+use Gi\Database;
 use Gi\Foundation\Application;
 use Gi\Request;
-use Gi\Validation;
 use Gi\Session;
-use Gi\Database;
-use Gi\Config;
+use Gi\Validation;
 
 function app($service = '')
 {
     return Application::resolve($service);
 }
 
-function env($key, $default = null){
+function env($key, $default = null)
+{
 
-	return Gi\Env::get($key, $default);
+    return Gi\Env::get($key, $default);
 }
 
-function config($key = null, $value = null){
+function config($key = null, $value = null)
+{
 
-	if (is_null($value)){
+    if (is_null($value)) {
 
-		return Config::get($key);
+        return Config::get($key);
 
-	} else {
+    } else {
 
-		Config::set($key, $value);
-	}
+        Config::set($key, $value);
+    }
 }
 
-function session($key = null, $value = null){
-	
-	if (is_null($value)){
+function session($key = null, $value = null)
+{
 
-		return Session::get($key);
+    if (is_null($value)) {
 
-	} else {
+        return Session::get($key);
 
-		Session::set($key, $value);
-	}
+    } else {
+
+        Session::set($key, $value);
+    }
 }
 
-function db($connect = null){
+function db($connect = null)
+{
 
-	if (!is_null($connect)) {
+    if (!is_null($connect)) {
 
-		Database::connect($connect);
-	}
+        Database::connect($connect);
+    }
 
-	return new Database;
+    return new Database;
 }
 
-function table($table){
-	return (new Database)->table($table);
+function table($table)
+{
+    return (new Database)->table($table);
 }
 
-function destroy_session(){
+function destroy_session()
+{
 
-	Session::destroy();
+    Session::destroy();
 }
 
-function abort($code = 500, $message = 'Error Processing Request'){
+function abort($code = 500, $message = 'Error Processing Request')
+{
 
-	throw new Exception($message, $code);
-	exit;	
+    throw new Exception($message, $code);
+    exit;
 }
 
-function dd(){
+function dd()
+{
 
-	$args = func_get_args();
+    $args = func_get_args();
 
-	echo "
+    echo "
 			<!DOCTYPE HTML>
 			<html>
 				<head>
@@ -78,134 +86,147 @@ function dd(){
 				</head>
 				<body style='background-color: #3a3a3a;color: #bdbdbd;'>";
 
-	foreach ($args as $arg){
-		echo "		<pre>";
-		var_dump($arg);
-		echo "		</pre>";
-	}
+    foreach ($args as $arg) {
+        echo "		<pre>";
+        var_dump($arg);
+        echo "		</pre>";
+    }
 
-	echo "
+    echo "
 				</body>
 			</html>
 		";
 
-	exit;
+    exit;
 }
 
-function url($append = null){
+function url($append = null)
+{
 
-	return $_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['SERVER_NAME'].':'.$_SERVER['SERVER_PORT'] . '/' . ltrim($append, '/');
+    return $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT'] . '/' . ltrim($append, '/');
 }
 
-function redirect($append = null){
+function redirect($append = null)
+{
 
-	$url = url($append);
+    $url = url($append);
 
-	header("location: $url");
-	exit;
-}
-
-
-function write_log($msg, $filename){
-
-	$log_file = base_dir($filename);
-
-	$log = fopen($log_file, 'a+');
-	fwrite($log, date('Y/m/d H:i:s').' | '.
-		trim(preg_replace('/\s\s+/', ' ',  $msg))."\n");
-	
-	fclose($log);
-}
-
-function client_ip(){
-
-	//Just get the headers if we can or else use the SERVER global
-	if(function_exists('apache_request_headers')){
-
-		$headers = apache_request_headers();
-
-	} else {
-
-		$headers = $_SERVER;
-
-	}
-
-	//Get the forwarded IP if it exists
-	if (array_key_exists('X-Forwarded-For', $headers ) and
-		filter_var($headers['X-Forwarded-For'],
-			FILTER_VALIDATE_IP,
-			FILTER_FLAG_IPV4)){
-
-		$the_ip = $headers['X-Forwarded-For'];
-
-	} elseif(array_key_exists('HTTP_X_FORWARDED_FOR', $headers) and
-		filter_var($headers['HTTP_X_FORWARDED_FOR'],
-			FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 )){
-
-		$the_ip = $headers['HTTP_X_FORWARDED_FOR'];
-
-	} else {
-		
-		$the_ip = filter_var($_SERVER['REMOTE_ADDR'],
-			FILTER_VALIDATE_IP, FILTER_FLAG_IPV4);
-
-	}
-
-	return $the_ip;
+    header("location: $url");
+    exit;
 }
 
 
-function client_device(){
+function write_log($msg, $filename)
+{
 
-	return isset($_SERVER['HTTP_USER_AGENT']) ?
-		$_SERVER['HTTP_USER_AGENT'] :
-		'Unknown';
+    $log_file = base_dir($filename);
+
+    $log = fopen($log_file, 'a+');
+    fwrite($log, date('Y/m/d H:i:s') . ' | ' .
+        trim(preg_replace('/\s\s+/', ' ', $msg)) . "\n");
+
+    fclose($log);
 }
 
-function base_dir($foo = null){
+function client_ip()
+{
 
-	return realpath(__DIR__ . '/../../') . "/$foo";
+    //Just get the headers if we can or else use the SERVER global
+    if (function_exists('apache_request_headers')) {
+
+        $headers = apache_request_headers();
+
+    } else {
+
+        $headers = $_SERVER;
+
+    }
+
+    //Get the forwarded IP if it exists
+    if (array_key_exists('X-Forwarded-For', $headers) and
+        filter_var($headers['X-Forwarded-For'],
+            FILTER_VALIDATE_IP,
+            FILTER_FLAG_IPV4)) {
+
+        $the_ip = $headers['X-Forwarded-For'];
+
+    } elseif (array_key_exists('HTTP_X_FORWARDED_FOR', $headers) and
+        filter_var($headers['HTTP_X_FORWARDED_FOR'],
+            FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+
+        $the_ip = $headers['HTTP_X_FORWARDED_FOR'];
+
+    } else {
+
+        $the_ip = filter_var($_SERVER['REMOTE_ADDR'],
+            FILTER_VALIDATE_IP, FILTER_FLAG_IPV4);
+
+    }
+
+    return $the_ip;
 }
 
-function stub($file, $data = []){
 
-	$stub = file_get_contents($file);
+function client_device()
+{
 
-	foreach ($data as $key => $val) {
-		$stub = str_replace('{' . $key . '}', $val, $stub);
-	}
-
-	return $stub;
+    return isset($_SERVER['HTTP_USER_AGENT']) ?
+        $_SERVER['HTTP_USER_AGENT'] :
+        'Unknown';
 }
 
-function view($name, $data = []){
-
-	return (new Gi\View)->name($name)->data($data);
+function base_dir($foo = null)
+{
+    return realpath($_SERVER['DOCUMENT_ROOT'] . '/' . $foo);
 }
 
-function request(){
 
-	return New Request;
+function stub($file, $data = [])
+{
+
+    $stub = file_get_contents($file);
+
+    foreach ($data as $key => $val) {
+        $stub = str_replace('{' . $key . '}', $val, $stub);
+    }
+
+    return $stub;
 }
 
-function post($name = null){
+function view($name, $data = [])
+{
 
-	return Request::data($name);
+    return (new Gi\View)->name($name)->data($data);
 }
 
-function get($name = null){
+function request()
+{
 
-	return Request::query($name);
+    return new Request;
 }
 
-function post_rules($rules){
+function post($name = null)
+{
 
-	$data = post()->toArray();
-	return (new Validation)->rules($rules)->data($data)->validate();
+    return Request::data($name);
 }
 
-function get_rules($rules){
+function get($name = null)
+{
 
-	$data = get()->toArray();
-	return (new Validation)->rules($rules)->data($data)->validate();
+    return Request::query($name);
+}
+
+function post_rules($rules)
+{
+
+    $data = post()->toArray();
+    return (new Validation)->rules($rules)->data($data)->validate();
+}
+
+function get_rules($rules)
+{
+
+    $data = get()->toArray();
+    return (new Validation)->rules($rules)->data($data)->validate();
 }
