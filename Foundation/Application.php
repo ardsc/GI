@@ -35,6 +35,7 @@ class Application extends Registry
         $this->setRepository('app', $this);
         $this->settlePreload();
         $this->initializeStubs();
+        $this->initializeLogger();
 
         date_default_timezone_set(config('app.timezone'));
 
@@ -42,6 +43,18 @@ class Application extends Registry
         if ('/' == $url) $url = config('app.indexurl');
 
         $this->resolveBinding('router')->handle($url);
+    }
+
+    /**
+     * Generate log file if not exist
+     *
+     * @return Void
+     */
+    protected function initializeLogger()
+    {
+        if (!file_exists(base_dir('error.log'))) {
+            file_put_contents(base_dir('error.log'), '');
+        }
     }
 
     /**

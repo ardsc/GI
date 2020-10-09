@@ -114,7 +114,7 @@ abstract class Registry
     public function registerService($name, $namespace)
     {
         if (!class_exists($namespace)) {
-            throw new RuntimeException('Class is not exist');
+            throw new RuntimeException('Class '.$namespace.' is not exist');
         }
 
         $this->setRepository($name, new $namespace);

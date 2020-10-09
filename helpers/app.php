@@ -6,6 +6,7 @@ use Gi\Foundation\Application;
 use Gi\Request;
 use Gi\Session;
 use Gi\Validation;
+use Gi\View;
 
 function app($service = '')
 {
@@ -177,7 +178,7 @@ function client_device()
 
 function base_dir($foo = null)
 {
-    return realpath($_SERVER['DOCUMENT_ROOT'] . '/' . $foo);
+    return realpath($_SERVER['DOCUMENT_ROOT']). '/' . $foo;
 }
 
 
@@ -195,8 +196,7 @@ function stub($file, $data = [])
 
 function view($name, $data = [])
 {
-
-    return (new Gi\View)->name($name)->data($data);
+    return View::name($name)->data($data);
 }
 
 function request()

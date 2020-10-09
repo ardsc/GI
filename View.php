@@ -2,61 +2,71 @@
 
 namespace Gi;
 
+use Gi\Foundation\Facade;
 use Gi\Traits\ViewCompiler;
 
-class View {
+class View extends Facade
+{
 
-	use ViewCompiler;
+    use ViewCompiler;
 
-	private
-		$path = null,
-		$name = null,
-		$data = [];
+    private
+        $name = null,
+        $data = [];
 
-	public function path($path){
+    public function path($path)
+    {
 
-		if (!is_null($path)) {
+        if (!is_null($path)) {
 
-			$this->path = $path;
-		}
+            $path1 = $path;
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 
-	public function name($name = null){
+    public function name($name = null)
+    {
 
-		if (!is_null($name)) {
+        if (!is_null($name)) {
 
-			$this->name = $name;
-		}
+            $this->name = $name;
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 
-	public function data($key = null, $val = null){
-		
-		if (is_null($key)) {
-			return new Collection($this->data);
-		}
+    public function data($key = null, $val = null)
+    {
 
-		if (is_array($key)) {
+        if (is_null($key)) {
+            return new Collection($this->data);
+        }
 
-			foreach ($key as $sub_key => $sub_val){
+        if (is_array($key)) {
 
-				$this->data[$sub_key] = $sub_val;
-			}
+            foreach ($key as $sub_key => $sub_val) {
 
-		} elseif(!is_null($val)) {
+                $this->data[$sub_key] = $sub_val;
+            }
 
-			$this->data[$key] = $val;
-		}
+        } elseif (!is_null($val)) {
 
-		return $this;
-	}
+            $this->data[$key] = $val;
+        }
 
-	public function render(){
+        return $this;
+    }
 
-		extract($this->data);
-		include $this->getCompiled($this->name);
-	}
+    protected static function setBindIdentity()
+    {
+        return 'view';
+    }
+
+    public function render()
+    {
+
+        extract($this->data);
+        require $this->getCompiled($this->name);
+    }
 }
