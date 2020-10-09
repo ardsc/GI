@@ -10,7 +10,7 @@
               "helpers/string.php"
           ],
           "psr-4": {
-              "GI\\": ""
+              "Gi\\": ""
           }
       },
 			"minimum-stability": "dev"
