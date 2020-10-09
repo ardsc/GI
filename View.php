@@ -25,7 +25,7 @@ class View extends Facade
         return $this;
     }
 
-    public function name($name = null)
+    protected function name($name = null)
     {
 
         if (!is_null($name)) {
