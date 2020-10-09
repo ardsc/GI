@@ -26,14 +26,6 @@ class Application extends Registry
         $this->setRepository('app', $this);
         $this->initializeHelper();
 
-        spl_autoload_register(function ($class) {
-            $file = base_dir('/' . str_replace('\\', '/', $class) . '.php');
-
-            if (file_exists($file)) {
-                require $file;
-            }
-        });
-
         $this->initializeStubs();
 
         $this->resolveBinding('env')::file(__DIR__ . '/../.env');
@@ -46,19 +38,6 @@ class Application extends Registry
         if ('/' == $url) $url = config('app.indexurl');
 
         $this->resolveBinding('router')->handle($url);
-    }
-
-    protected function initializeHelper()
-    {
-        $dir = dirname(__DIR__) . '/helpers';
-        $helpers = scandir($dir);
-        foreach ($helpers as $file) {
-
-            if ('.' != $file and '..' != $file) {
-
-                require $dir . '/' . $file;
-            }
-        }
     }
 
     protected function initializeStubs()
