@@ -12,34 +12,55 @@ class Application extends Registry
      */
     protected $VERSION = '1.0.0';
 
+    /**
+     * Get access to application registry
+     *
+     * @param $name
+     * @return mixed
+     */
     public static function resolve($name)
     {
-        $repo = array_merge(self::$repository, self::$essentialServices);
-        if (isset($repo[$name])) {
-            return $repo[$name];
-        }
-        return new self();
+        $repo = array_merge(self::$essentialServices, self::$repository);
+
+        return isset($repo[$name]) ? $repo[$name] : $repo['app'];
     }
 
+    /**
+     * Where the application begin
+     *
+     * @return Void
+     */
     public function run()
     {
         $this->setRepository('app', $this);
-        $this->initializeHelper();
-
+        $this->settlePreload();
         $this->initializeStubs();
 
-        $this->resolveBinding('env')::file(__DIR__ . '/../.env');
-        $this->resolveBinding('config')::load(__DIR__ . '/../config');
-        $this->resolveBinding('error.handler')::register();
-
         date_default_timezone_set(config('app.timezone'));
-        $url = $this->resolveBinding('request')::url();
 
+        $url = $this->resolveBinding('request')::url();
         if ('/' == $url) $url = config('app.indexurl');
 
         $this->resolveBinding('router')->handle($url);
     }
 
+    /**
+     * Bind preload class
+     *
+     * @return Void
+     */
+    protected function settlePreload()
+    {
+        $this->resolveBinding('env')::file(base_dir('.env'));
+        $this->resolveBinding('config')::load(base_dir('config'));
+        $this->resolveBinding('error.handler')::register();
+    }
+
+    /**
+     * Prepare stub configuration
+     *
+     * @return Void
+     */
     protected function initializeStubs()
     {
         $dir = dirname(__DIR__);
@@ -55,6 +76,12 @@ class Application extends Registry
 
     }
 
+    /**
+     * Write stub
+     *
+     * @param $file
+     * @param $stubDir
+     */
     protected function settleStub($file, $stubDir)
     {
         if (!file_exists(base_dir($file))) {
