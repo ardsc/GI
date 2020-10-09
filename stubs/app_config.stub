@@ -1,0 +1,10 @@
+<?php
+
+return [
+	'name' => env('app_name', 'ardsc'),
+	'key' => env('app_key', time()),
+	'debug' => true,
+	'timezone' => 'Asia/Jakarta',
+	'indexurl' => 'app/home/index',
+	'tmppath' => base_dir('tmp')
+];
