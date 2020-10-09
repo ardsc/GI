@@ -11,60 +11,8 @@ define('OFFOC', true);
 
 
 // load all helpers
-$helpers = scandir(__DIR__ . '/helpers');
-foreach ($helpers as $file) {
-	
-	if ('.' != $file and '..' != $file) {
+require 'Foundation/Registry.php';
+require 'Foundation/Application.php';
 
-		require __DIR__ . "/helpers/$file";
-	}
-}
-
-// autoload
-spl_autoload_register(function($class){
-
-	$file = base_dir('/' . str_replace('\\', '/', $class) . '.php');
-	
-	if (file_exists($file)) {
-
-		require $file;
-	}
-});
-
-// generate default htaccess
-if (!file_exists(base_dir('.htaccess'))) {
-
-	file_put_contents(base_dir('.htaccess'),
-		stub(__DIR__ . '/stubs/htaccess.stub'));
-}
-// generate default index file
-if (!file_exists(base_dir('index.php'))) {
-
-	file_put_contents(base_dir('index.php'),
-		stub(__DIR__ . '/stubs/index.stub'));
-}
-// generate default gitignore file
-if (!file_exists(base_dir('.gitignore'))) {
-
-	file_put_contents(base_dir('.gitignore'),
-		stub(__DIR__ . '/stubs/gitignore.stub'));
-}
-
-// load local config (developer setting)
-GI\Env::file(__DIR__ . '/../.env');
-// load server config directory
-GI\Config::load(__DIR__ . '/../config');
-
-// error handler and log
-GI\ErrorHandler::register();
-
-date_default_timezone_set(config('app.timezone'));
-
-// get url
-$url = GI\Request::url();
-
-// indexurl / first open app
-if ('/' == $url) $url = config('app.indexurl');
-
-// response
-(new GI\Router)->handle($url);
+$kernel = new Gi\Foundation\Application();
+$kernel->run();

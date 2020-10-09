@@ -1,9 +1,9 @@
 <?php
 
-namespace GI;
+namespace Gi;
 
 use Exception;
-use GI\Traits\QueryBuilder;
+use Gi\Traits\QueryBuilder;
 
 class Database {
 
@@ -20,7 +20,6 @@ class Database {
         }
         
         $db = config('database.connections.' . $connect);
-
         if (is_null($db)){
 
             throw new Exception(
@@ -29,7 +28,7 @@ class Database {
             );
         }
 
-        $driver = '\\GI\\Drivers\\' . ucfirst(strtolower($db['driver']));
+        $driver = '\\Gi\\Drivers\\' . ucfirst(strtolower($db['driver']));
         
         static::$driver = new $driver;
 

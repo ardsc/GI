@@ -1,6 +1,6 @@
 <?php
 
-namespace GI;
+namespace Gi;
 
 class Validation {
 
@@ -22,7 +22,8 @@ class Validation {
         return $this;
     }
 
-    public function validate(){
+    public function validate()
+    {
 
         foreach(static::$rules as $field => $rules_str) {
 
@@ -54,19 +55,29 @@ class Validation {
 
                 if (in_array('required', $rules)) {
 
-                    static::$errors[$field] = 'Tidak boleh kosong';
+                    static::$errors[] = [
+                        'field' => $field,
+                        'message' => 'Tidak boleh kosong'
+                    ];
                 }
 
                 static::$data[$field] = null;
             }
         }
 
-        $result = [
-            'data' => static::$data,
-            'errors' => static::$errors
+        $result =  [
+            'status' => 'success',
+            'data' => static::$data
         ];
 
-        return new Collection($result);
+
+        if (!empty(static::$errors)) {
+
+            $result['status'] = 'error';
+            $result['errors'] = static::$errors;
+        }
+
+        return $result;
     }
 
     private function stringCheck($field)
@@ -99,7 +110,10 @@ class Validation {
 
                 if (!is_numeric($data)) {
 
-                    static::$errors["{$field}[$key]"] = "Harus berupa angka";
+                    static::$errors[] = [
+                        'field' => "{$field}[$key]",
+                        'message' => "Harus berupa angka"
+                    ];        
                 }
             }
 
@@ -107,7 +121,10 @@ class Validation {
 
             if (!is_numeric(static::$data[$field])) {
 
-                static::$errors[$field] = "Harus berupa angka";
+                static::$errors[] = [
+                    'field' => $field,
+                    'message' => "Harus berupa angka"
+                ];        
             }
         }
     }
@@ -121,8 +138,10 @@ class Validation {
 
                 if (strlen((string)$data) != $length) {
 
-                    static::$errors["{$field}[$key]"] =
-                        "Harus $length karakter";
+                    static::$errors[] = [
+                        'field' => "{$field}[$key]",
+                        'message' => "Harus $length karakter"
+                    ];
                 }
             }
 
@@ -131,62 +150,14 @@ class Validation {
 
             if (strlen((string)static::$data[$field]) != $length) {
 
-                static::$errors[$field] = "Harus $length karakter";
+                static::$errors[] = [
+                    'field' => $field,
+                    'message' => "Harus $length karakter"
+                ];
             }
         }
     }
 
-    private function moneyCheck($field)
-    {
-
-        // i cant use regex, honestly i found this code from https://stackoverflow.com/questions/17205377/javascript-regular-expression-for-currency-format
-        $regex = '/^(?!0\.00)\d{1,3}(\.\d{3})*(,\d\d)?$/';
-
-        if (is_array(static::$data[$field])) {
-
-            foreach (static::$data[$field] as $key => $data) {
-
-                if (!preg_match($regex, $data)) {
-
-                    static::$errors["{$field}[$key]"] = "Harus berupa uang";
-                }
-            }
-
-        } else {
-
-            if (!preg_match($regex, static::$data[$field])) {
-
-                static::$errors[$field] = "Harus berupa uang";
-            }
-        }
-    }
-
-
-
-    private function daterangeCheck($field)
-    {
-
-        // the same as moneyCheck, https://stackoverflow.com/questions/13194322/php-regex-to-check-date-is-in-yyyy-mm-dd-format
-        $regex = '/^(0[1-9]|[1-2][0-9]|3[0-1])\/(0[1-9]|1[0-2])\/[0-9]{4} - (0[1-9]|[1-2][0-9]|3[0-1])\/(0[1-9]|1[0-2])\/[0-9]{4}$/';
-
-        if (is_array(static::$data[$field])) {
-
-            foreach (static::$data[$field] as $key => $data) {
-
-                if (!preg_match($regex, $data)) {
-
-                    static::$errors["{$field}[$key]"] = "Tidak valid";
-                }
-            }
-
-        } else {
-
-            if (!preg_match($regex, static::$data[$field])) {
-
-                static::$errors[$field] = "Tidak valid";
-            }
-        }
-    }
 
     private function maxCheck($field, $max)
     {
@@ -201,16 +172,20 @@ class Validation {
                     
                     if ($data > $max) {
 
-                        static::$errors["{$field}[$key]"] =
-                            "Tidak boleh lebih dari $max";
+                        static::$errors[] = [
+                            'field' => "{$field}[$key]",
+                            'message' => "Tidak boleh lebih dari $max"
+                        ];
                     }
                 
                 } else {
 
                     if (strlen($data) > $max) {
 
-                        static::$errors["{$field}[$key]"] =
-                            "Tidak boleh lebih dari $max karakter";
+                        static::$errors[] = [
+                            'field' => "{$field}[$key]",
+                            'message' => "Tidak boleh lebih dari $max karakter"
+                        ];
                     }
                 }
             }
@@ -221,18 +196,25 @@ class Validation {
                 
                 if (static::$data[$field] > $max) {
 
-                    static::$errors[$field] = "Tidak boleh lebih dari $max";
+                    static::$errors[] = [
+                        'field' => $field,
+                        'message' => "Tidak boleh lebih dari $max"
+                    ];
                 }
             
             } else {
 
                 if (strlen(static::$data[$field]) > $max) {
 
-                    static::$errors[$field] = 
-                        "Tidak boleh lebih dari $max karakter";
+                    static::$errors[] = [
+                        'field' => $field,
+                        'message' => "Tidak boleh lebih dari $max karakter"
+                    ];
                 }
             }
         }
+
+
     }
 
 
@@ -248,16 +230,20 @@ class Validation {
                     
                     if ($data < $min) {
 
-                        static::$errors["{$field}[$key]"] =
-                            "Tidak boleh kurang dari $min";
+                        static::$errors[] = [
+                            'field' => "{$field}[$key]",
+                            'message' => "Tidak boleh kurang dari $min"
+                        ];
                     }
                 
                 } else {
 
                     if (strlen($data) < $min) {
 
-                        static::$errors["{$field}[$key]"] =
-                            "Tidak boleh kurang dari $min karakter";
+                        static::$errors[] = [
+                            'field' => "{$field}[$key]",
+                            'message' => "Tidak boleh kurang dari $min karakter"
+                        ];
                     }
                 }
 
@@ -269,15 +255,20 @@ class Validation {
                 
                 if (static::$data[$field] < $min) {
 
-                    static::$errors[$field] = "Tidak boleh kurang dari $min";
+                    static::$errors[] = [
+                        'field' => $field,
+                        'message' => "Tidak boleh kurang dari $min"
+                    ];
                 }
             
             } else {
 
                 if (strlen(static::$data[$field]) < $min) {
 
-                    static::$errors[$field] =
-                        "Tidak boleh kurang dari $min karakter";
+                    static::$errors[] = [
+                        'field' => $field,
+                        'message' => "Tidak boleh kurang dari $min karakter"
+                    ];
                 }
             }
         }
@@ -292,7 +283,10 @@ class Validation {
             foreach (static::$data[$field] as $key => $data) {
                 
                 if ($data == '') {
-                    static::$errors["{$field}[$key]"] = "Tidak boleh kosong";
+                    static::$errors[] = [
+                        'field' => "{$field}[$key]",
+                        'message' => 'Tidak boleh kosong'
+                    ];
                 }
             }
 
@@ -300,7 +294,10 @@ class Validation {
 
 
             if (static::$data[$field] == '') {
-                static::$errors[$field] = "Tidak boleh kosong";
+                static::$errors[] = [
+                    'field' => $field,
+                    'message' => 'Tidak boleh kosong'
+                ];
             }
         }
     }
@@ -319,7 +316,10 @@ class Validation {
 
                 if (!in_array($data, $param)) {
 
-                    static::$errors["{$field}[$key]"] = "Tidak valid";
+                    static::$errors[] = [
+                        'field' => "{$field}[$key]",
+                        'message' => 'Tidak valid'
+                    ];
                 }
 
             }
@@ -328,7 +328,10 @@ class Validation {
 
             if (!in_array(static::$data[$field], $param)) {
 
-                static::$errors[$field] = "Tidak valid";
+                static::$errors[] = [
+                    'field' => $field,
+                    'message' => 'Tidak valid'
+                ];
             }
         }
     }
@@ -342,7 +345,10 @@ class Validation {
                 
                 if ($data != static::$data[$field_to_confirm][$key]) {
 
-                    static::$errors["{$field}[$key]"] = "Tidak valid";
+                    static::$errors[] = [
+                        'field' => "{$field}[$key]",
+                        'message' => 'Tidak valid'
+                    ];
                 }
 
             }
@@ -351,7 +357,10 @@ class Validation {
 
             if (static::$data[$field] != static::$data[$field_to_confirm]) {
 
-                static::$errors[$field] = "Tidak valid";
+                static::$errors[] = [
+                    'field' => $field,
+                    'message' => 'Tidak valid'
+                ];
             }
         }
     }
@@ -372,7 +381,10 @@ class Validation {
 
                 if ($check) {
 
-                    static::$errors["{$field}[$key]"] = "Sudah digunakan";
+                    static::$errors[] = [
+                        'field' => "{$field}[$key]",
+                        'message' => 'Sudah digunakan'
+                    ];
                 }
             }
 
@@ -385,7 +397,10 @@ class Validation {
                 ->one();
             if ($check) {
 
-                static::$errors[$field] = "Sudah digunakan";
+                static::$errors[] = [
+                    'field' => $field,
+                    'message' => 'Sudah digunakan'
+                ];
             }
         }
 

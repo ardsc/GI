@@ -1,8 +1,8 @@
 <?php
 
-namespace GI;
+namespace Gi;
 
-use GI\Traits\ViewCompiler;
+use Gi\Traits\ViewCompiler;
 
 class View {
 
@@ -15,14 +15,20 @@ class View {
 
 	public function path($path){
 
-		$this->path = $path;
+		if (!is_null($path)) {
+
+			$this->path = $path;
+		}
 
 		return $this;
 	}
 
 	public function name($name = null){
 
-		$this->name = $name;
+		if (!is_null($name)) {
+
+			$this->name = $name;
+		}
 
 		return $this;
 	}
@@ -51,9 +57,6 @@ class View {
 	public function render(){
 
 		extract($this->data);
-		
-		$file = "$this->path/$this->name.php";
-
-		include $this->getCompiled($file);
+		include $this->getCompiled($this->name);
 	}
 }

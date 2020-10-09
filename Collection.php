@@ -1,6 +1,6 @@
 <?php
 
-namespace GI;
+namespace Gi;
 
 class Collection implements \ArrayAccess, \Iterator, \Countable {
 

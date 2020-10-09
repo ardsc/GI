@@ -1,8 +1,8 @@
 <?php
 
-namespace GI\Drivers;
+namespace Gi\Drivers;
 
-use GI\Contracts\Database;
+use Gi\Contracts\Database;
 
 class Mysql implements Database
 {

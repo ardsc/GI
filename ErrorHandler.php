@@ -1,6 +1,6 @@
 <?php
 
-namespace GI;
+namespace Gi;
 
 class ErrorHandler{
 
@@ -68,6 +68,7 @@ class ErrorHandler{
 			echo json_encode($error_reporting);
 
 		} else {
+
 
 			$html = "
 				<!DOCTYPE HTML>

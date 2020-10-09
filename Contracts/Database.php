@@ -1,6 +1,6 @@
 <?php
 
-namespace GI\Contracts;
+namespace Gi\Contracts;
 
 interface Database {
 

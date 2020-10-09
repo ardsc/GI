@@ -1,4 +1,4 @@
 <?php
 
 // A Fresh Start For Something New
-require __DIR__ . '/GI/index.php';
+require __DIR__ . '/Gi/index.php';

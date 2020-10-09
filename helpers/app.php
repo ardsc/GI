@@ -1,14 +1,20 @@
 <?php
 
-use GI\Request;
-use GI\Validation;
-use GI\Session;
-use GI\Database;
-use GI\Config;
+use Gi\Foundation\Application;
+use Gi\Request;
+use Gi\Validation;
+use Gi\Session;
+use Gi\Database;
+use Gi\Config;
+
+function app($service = '')
+{
+    return Application::resolve($service);
+}
 
 function env($key, $default = null){
 
-	return GI\Env::get($key, $default);
+	return Gi\Env::get($key, $default);
 }
 
 function config($key = null, $value = null){
@@ -46,7 +52,6 @@ function db($connect = null){
 }
 
 function table($table){
-
 	return (new Database)->table($table);
 }
 
@@ -75,8 +80,7 @@ function dd(){
 
 	foreach ($args as $arg){
 		echo "		<pre>";
-		// var_dump($arg);
-		print_r($arg);
+		var_dump($arg);
 		echo "		</pre>";
 	}
 
@@ -90,7 +94,7 @@ function dd(){
 
 function url($append = null){
 
-	return (new Request)->base() . '/' . ltrim($append, '/');
+	return $_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['SERVER_NAME'].':'.$_SERVER['SERVER_PORT'] . '/' . ltrim($append, '/');
 }
 
 function redirect($append = null){
@@ -176,7 +180,7 @@ function stub($file, $data = []){
 
 function view($name, $data = []){
 
-	return (new GI\View)->name($name)->data($data);
+	return (new Gi\View)->name($name)->data($data);
 }
 
 function request(){
@@ -194,7 +198,7 @@ function get($name = null){
 	return Request::query($name);
 }
 
-function post_rules($rules = []){
+function post_rules($rules){
 
 	$data = post()->toArray();
 	return (new Validation)->rules($rules)->data($data)->validate();

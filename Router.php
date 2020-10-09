@@ -1,6 +1,6 @@
 <?php
 
-namespace GI;
+namespace Gi;
 
 use ReflectionMethod;
 use Exception;
@@ -9,13 +9,13 @@ class Router {
 
 	private function getDependency($object, $method){
 		$reflection = new ReflectionMethod($object, $method);
-				
+
 		$parameters = $reflection->getParameters();
-		
+
 		$dependencys = [];
 		
 		foreach ($parameters as $parameter){
-			
+
 			if (method_exists($parameter, 'hasType') and $parameter->hasType()){
 				
 				$dependency = '\\' . $parameter->getType()->getName();
@@ -55,12 +55,13 @@ class Router {
 		}
 
 		$page_name = array_pop($arr_url);
-		
+
 		$http_method = strtolower(Request::method());
-		
+
 		if (Request::isAjax()) {
 
 			$is_api = true;
+			$http_method =  'ajax_'. $http_method;
 		}
 
 		$method = camel_case($http_method . '_' . $page_name);
@@ -126,18 +127,12 @@ class Router {
 				
 				$args = $this->getdependency($controller, $method);
 				
-				if (method_exists($controller, 'before')){
-
-					list($class, $method, $args) = $controller->before($class, $method, $args);
-					$controller = new $class;
-				}
+				if (method_exists($controller, 'before')) $controller->before($class, $method, $args);
 
 				$result = call_user_func_array([$controller, $method], $args);
 
-				if (method_exists($controller, 'after')) {
 
-					$result = $controller->after($class, $method, $args, $result);
-				}
+				if (method_exists($controller, 'after')) $controller->after($class, $method, $args, $result);
 
 				if ($result instanceof View) {
 
@@ -148,9 +143,9 @@ class Router {
 					} else {
 
 						$result = $result->path("$path/view");
+
 					}
 				}
-
 				return $result;
 			
 			} elseif(!$is_api and file_exists("$path/view/$page_name.php")){
@@ -168,16 +163,11 @@ class Router {
 
 		$result = $this->prepare($url);
 		
-		if($result instanceof View) {
+		if ($result instanceof View) {
 
 			$result->render();
 
-		} elseif($result instanceof Collection){
-
-			header('content-type:application/json');
-			echo json_encode($result->toArray());
-
-		} elseif(is_array($result)){
+		} elseif (is_array($result)){
 
 			header('content-type:application/json');
 			echo json_encode($result);

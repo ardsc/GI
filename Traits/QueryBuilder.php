@@ -1,8 +1,8 @@
 <?php
 
-namespace GI\Traits;
+namespace Gi\Traits;
 
-use GI\Collection;
+use Gi\Collection;
 
 trait QueryBuilder {
 
@@ -96,6 +96,12 @@ trait QueryBuilder {
     public function desc(){
 
         $this->obsql .= ' desc';
+        return $this;
+    }
+
+    public function limit($limit = 1) {
+
+        $this->obsql .= ' limit '.$limit;
         return $this;
     }
 
@@ -237,12 +243,10 @@ trait QueryBuilder {
 
         if (0 != $this->length) {
 
-            /*$this->sql = str_replace('select ',
-                "select first {$this->length} skip {$this->start} ",
-                $this->sql);*/
-
-            return $this->sql . $this->wsql . $this->obsql . 
-                " offset {$this->start} limit {$this->length}";
+//            $this->sql = str_replace('select ',
+//                "select first {$this->length} skip {$this->start} ",
+//                $this->sql);
+            $this->obsql .= " limit {$this->length} offset {$this->start} ";
 
         }
 
@@ -306,8 +310,8 @@ trait QueryBuilder {
 
             return $result[$coloum];
         }
-
-        return null;
+        
+        return false;
     }
 
     public function get($callback = false){
@@ -331,6 +335,11 @@ trait QueryBuilder {
         }
 
     	return new Collection($data);
+    }
+
+    public function selectExist() {
+        call_user_func_array([$this, 'select'], func_get_args());
+        return (boolean) $this->assoc($this->run());
     }
 
     public function one(){
