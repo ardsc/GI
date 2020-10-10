@@ -12,114 +12,160 @@ abstract class Registry
      *
      * @var array
      */
-    protected static $repository = [];
+    protected static $repositoryObject = [];
 
     /**
      * Preload class
      *
      * @var string[]
      */
-    protected static $essentialServices = [
-        'env'           => 'Gi\Env',
-        'config'        => 'Gi\Config',
+    protected static $repository = [
+        'env' => 'Gi\Env',
+        'config' => 'Gi\Config',
         'error.handler' => 'Gi\ErrorHandler',
-        'request'       => 'Gi\Request',
-        'router'        => 'Gi\Router'
+        'request' => 'Gi\Request',
+        'router' => 'Gi\Router'
     ];
 
     /**
      * Create or store class object in memory
      *
-     * @param $name
+     * @param string $name
      * @return array|mixed
      */
-    public function resolveBinding($name)
+    public function resolveBinding(string $name)
     {
-        $service = $this->prepareBinding($name);
-        if (!is_object($service)) {
-            $service = $this->makeConcrete($name, $service);
+        if ($this->hasBound($name)) {
+            return $this->getRepositoryObject($name);
         }
-        return $service;
+
+        return $this->prepareBinding($name);
     }
 
     /**
-     * Check if class hasn't registered or get repo value
+     * Check if class has bound
      *
-     * @param $name
-     * @return array|mixed
-     */
-    private function prepareBinding($name)
-    {
-        if (!$this->hasBound($name)) {
-            throw new RuntimeException('Unable to find [ '.$name.' ] service');
-        }
-
-        return $this->getRepository($name);
-    }
-
-    /**
-     * Check if class hasn't registered
-     *
-     * @param $name
+     * @param string $name
      * @return bool
      */
-    protected function hasBound($name)
+    protected function hasBound(string $name)
     {
-        return isset($this->getRepository()[$name]);
+        return isset($this->getAllRepositoryObject()[$name]);
     }
 
     /**
-     * Store namespace/concrete class to repository
+     * Get all the bound class
      *
-     * @param $name
-     * @param $value
+     * @return array
      */
-    protected function setRepository($name, $value)
+    public function getAllRepositoryObject()
     {
-        self::$repository[$name] = $value;
+        return static::$repositoryObject;
     }
 
     /**
-     * Get namespace/concrete class from repository
+     * Get bound concrete class
+     *
+     * @param string $name
+     * @return mixed
+     */
+    public function getRepositoryObject(string $name)
+    {
+        return static::$repositoryObject[$name];
+    }
+
+    /**
+     * Bound namespace to repository object
      *
      * @param string $name
      * @return array|mixed
      */
-    protected function getRepository($name = '')
+    private function prepareBinding(string $name)
     {
-        $repo = array_merge(self::$essentialServices, self::$repository);
-        return $name ? $repo[$name] : $repo;
+        if (!$this->hasRegistered($name)) {
+            throw new RuntimeException('Unable to find namespace for [ ' . $name . ' ] service');
+        }
+
+        $this->makeConcrete($name, $this->getRepository($name));
+        return $this->getRepositoryObject($name);
+    }
+
+    /**
+     * Check if namespace has registered
+     *
+     * @param string $name
+     * @return bool
+     */
+    protected function hasRegistered(string $name)
+    {
+        return isset($this->getAllRepository()[$name]);
+    }
+
+    /**
+     * Get all the registered namespace
+     *
+     * @return string[]
+     */
+    public function getAllRepository()
+    {
+        return static::$repository;
     }
 
     /**
      * Instantiate class name to concrete class
      *
-     * @param $name
-     * @param $namespace
-     * @return array|mixed
+     * @param string $name
+     * @param string $namespace
+     * @return void
      */
-    private function makeConcrete($name, $namespace)
+    private function makeConcrete(string $name, string $namespace)
     {
-        $this->setRepository($name, new $namespace);
-        return $this->getRepository($name);
+        if (!class_exists($namespace)) {
+            throw new RuntimeException('Class ' . $namespace . ' is not exist');
+        }
+
+        $this->setRepositoryObject($name, new $namespace);
     }
 
     /**
-     * Register namespace to repository as an object
+     * Setter for repository object
      *
-     * @param $name
-     * @param $namespace
-     * @return $this
+     * @param string $name
+     * @param $value
+     * @return Registry
      */
-    public function registerService($name, $namespace)
+    protected function setRepositoryObject(string $name, $value)
     {
-        if (!class_exists($namespace)) {
-            throw new RuntimeException('Class '.$namespace.' is not exist');
+        static::$repositoryObject[$name] = $value;
+        return $this;
+    }
+
+    /**
+     * Get registered namespace
+     *
+     * @param string $name
+     * @return array|mixed
+     */
+    public function getRepository(string $name)
+    {
+        return $name ? static::$repository[$name] : static::$repository;
+    }
+
+    /**
+     * Store namespace/concrete class to repository
+     *
+     * @param string $name
+     * @param string $value
+     * @return Registry
+     */
+    public function setRepository(string $name, string $value)
+    {
+        if ($this->hasRegistered($name)) {
+            throw new RuntimeException('Identity ' . $name . ' has registered');
         }
 
-        $this->setRepository($name, new $namespace);
-
-        return $this->getRepository($name);
+        static::$repository[$name] = $value;
+        return $this;
     }
 
 }

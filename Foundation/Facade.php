@@ -3,20 +3,23 @@
 namespace Gi\Foundation;
 
 use Exception;
-use RuntimeException;
 
 abstract class Facade
 {
 
+    /**
+     * @var Application
+     */
     protected static $app;
 
     /**
      * Override service name
+     *
      * @throws Exception
      */
     protected static function setBindIdentity()
     {
-        throw new Exception('Unable to initialzie package object');
+        throw new Exception('Unable to initialize package object');
     }
 
     /**
@@ -27,9 +30,10 @@ abstract class Facade
      */
     public static function resolveBinding($name)
     {
-        self::$app = app();
-        self::$app->registerService($name, get_called_class());
-        return self::$app->resolveBinding($name);
+        static::$app = app();
+        static::$app->setRepository($name, get_called_class());
+
+        return static::$app->resolveBinding($name);
     }
 
     /**
@@ -42,12 +46,27 @@ abstract class Facade
      */
     public static function __callStatic($name, $arguments)
     {
-        $instance = self::resolveBinding(static::setBindIdentity());
+        $identity = static::setBindIdentity();
+        $instance = static::resolveBinding($identity);
 
         if (! is_object($instance)) {
-            throw new Exception('Package is not a concrete object');
+            throw new Exception('Package ['.$identity.'] is not a concrete class');
         }
 
-        return call_user_func_array([$instance, $name], $arguments);
+        switch (count($arguments)) {
+            case 0:
+                return $instance->$name();
+            case 1:
+                return $instance->$name($arguments[0]);
+            case 2:
+                return $instance->$name($arguments[0], $arguments[1]);
+            case 3:
+                return $instance->$name($arguments[0], $arguments[1], $arguments[2]);
+            case 4:
+                return $instance->$name($arguments[0], $arguments[1], $arguments[2], $arguments[3]);
+            default:
+                return call_user_func_array([$instance, $name], $arguments);
+        }
+
     }
 }

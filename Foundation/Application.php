@@ -2,6 +2,7 @@
 
 namespace Gi\Foundation;
 
+use Exception;
 use Gi;
 
 
@@ -10,19 +11,22 @@ class Application extends Registry
     /**
      * @var string
      */
-    protected $VERSION = '1.0.0';
+    protected $VERSION = '1.0.8';
 
     /**
      * Get access to application registry
      *
      * @param $name
      * @return mixed
+     * @throws Exception
      */
     public static function resolve($name)
     {
-        $repo = array_merge(self::$essentialServices, self::$repository);
+        if (!isset(static::$repositoryObject[$name]) && $name) {
+            throw new Exception('Object '.$name.' does\'nt exist');
+        }
 
-        return isset($repo[$name]) ? $repo[$name] : $repo['app'];
+        return $name ? static::$repositoryObject[$name] : static::$repositoryObject['app'];
     }
 
     /**
@@ -32,7 +36,7 @@ class Application extends Registry
      */
     public function run()
     {
-        $this->setRepository('app', $this);
+        $this->setRepositoryObject('app', $this);
         $this->settlePreload();
         $this->initializeStubs();
         $this->initializeLogger();
