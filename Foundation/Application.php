@@ -11,7 +11,7 @@ class Application extends Registry
     /**
      * @var string
      */
-    public static $VERSION = '1.0.8';
+    public static $VERSION = '1.0.11';
 
     /**
      * @var string
