@@ -24,7 +24,7 @@ class MakeCommand extends SymfonyCommand
     protected $io;
 
     /**
-     * @var booleanl
+     * @var boolean
      */
     protected $clean;
 
