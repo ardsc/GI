@@ -11,7 +11,12 @@ class Application extends Registry
     /**
      * @var string
      */
-    protected $VERSION = '1.0.8';
+    public static $VERSION = '1.0.8';
+
+    /**
+     * @var string
+     */
+    public static $NAME = 'SIMPPD Framework';
 
     /**
      * Get access to application registry

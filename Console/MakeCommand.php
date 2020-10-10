@@ -4,7 +4,9 @@ namespace Gi\Console;
 
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -22,6 +24,11 @@ class MakeCommand extends SymfonyCommand
     protected $io;
 
     /**
+     * @var booleanl
+     */
+    protected $clean;
+
+    /**
      * Controller constructor.
      * @param string|null $name
      */
@@ -32,6 +39,8 @@ class MakeCommand extends SymfonyCommand
 
     protected function configure()
     {
+        $this->setDescription('Digunakan untuk generate controller bersamaan dengan view dan layout nya');
+        $this->setDefinition(new InputDefinition([new InputOption('clean')]));
         $this->addArgument('controller', InputArgument::REQUIRED);
     }
 
@@ -45,6 +54,7 @@ class MakeCommand extends SymfonyCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->io = new SymfonyStyle($input, $output);
+        $this->clean = $input->getOption('clean');
 
         $controller = $input->getArgument('controller');
         $this->prepareStub($controller);
@@ -95,7 +105,7 @@ class MakeCommand extends SymfonyCommand
         ];
 
         $this->path = $argv;
-        $this->createStub($conf);
+        $this->createStub($this->clean ? ['controller' => $conf['controller']] : $conf);
     }
 
     /**
